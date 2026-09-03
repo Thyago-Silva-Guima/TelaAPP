@@ -26,21 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/*
- * Tela de Pagamento - App RentGo
- *
- * Feito em Jetpack Compose usando os conceitos vistos em aula:
- * - remember + mutableStateOf para guardar o estado dos campos (Aula 5 e 6 - Intro Compose)
- * - TextField/OutlinedTextField com onValueChange para capturar a digitação
- * - Funções (Aula 3) para validar cada campo separadamente
- * - Estruturas condicionais if/else (Aula 2.2) para decidir a cor/estado do botão
- *
- * Observação: os botões desta tela são interativos (você pode digitar, trocar a forma
- * de pagamento etc.), mas não existe uma navegação real nem um pagamento sendo processado
- * de verdade - é só a interface.
- */
-
-// Cores base do app, para não ficar espalhando valores mágicos pelo código
 private val AzulPrincipal = Color(0xFF2255F5)
 private val AzulClaroFundo = Color(0xFFF3F4F8)
 private val CinzaTexto = Color(0xFF8A8F98)
@@ -58,7 +43,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Enum simples para representar qual forma de pagamento está selecionada
 enum class FormaPagamento {
     CARTAO_CREDITO,
     PIX
@@ -66,8 +50,6 @@ enum class FormaPagamento {
 
 @Composable
 fun PaymentScreen() {
-
-    // ---------- Estado dos campos (remember + mutableStateOf, igual visto em aula) ----------
     var formaPagamentoSelecionada by remember { mutableStateOf(FormaPagamento.CARTAO_CREDITO) }
 
     var numeroCartao by remember { mutableStateOf("") }
@@ -77,13 +59,10 @@ fun PaymentScreen() {
 
     var pagamentoConfirmado by remember { mutableStateOf(false) }
 
-    // Dados da reserva (fixos, só para exibição - não vieram de nenhum banco/API)
     val nomeCarro = "Ford Focus 2023"
     val periodoReserva = "15 Out - 20 Out (5 Diárias)"
     val valorTotal = "R$ 600,00"
 
-    // O botão só fica azul (habilitado) quando TODAS as informações do cartão
-    // estiverem preenchidas em um formato válido.
     val formularioValido = isFormularioValido(numeroCartao, validade, cvv, nomeTitular)
 
     Scaffold(
@@ -124,7 +103,6 @@ fun PaymentScreen() {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Os campos do cartão ficam sempre visíveis, independente da forma escolhida
             CamposDoCartao(
                 numeroCartao = numeroCartao,
                 onNumeroCartaoChange = { numeroCartao = it },
@@ -143,7 +121,6 @@ fun PaymentScreen() {
                 onConfirmar = { pagamentoConfirmado = true }
             )
 
-            // Só aparece depois que o botão é clicado com sucesso (state = true)
             if (pagamentoConfirmado) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
@@ -173,7 +150,7 @@ fun PaymentTopBar() {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { /* Sem navegação real - só protótipo de tela */ }) {
+            IconButton(onClick = { }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Voltar")
             }
         },
@@ -201,7 +178,6 @@ fun ResumoDaReserva(nomeCarro: String, periodo: String, valorTotal: String) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Sem imagem do carro, só as informações, como pedido
             Column {
                 Text(
                     text = nomeCarro,
@@ -404,13 +380,6 @@ fun BotaoConfirmarPagamento(habilitado: Boolean, onConfirmar: () -> Unit) {
     }
 }
 
-// ---------------------------------------------------------------------------------
-// Funções de validação (Aula 3 - Funções / Aula 2.2 - Condicionais)
-// Cada função verifica um campo específico e devolve um Boolean.
-// ---------------------------------------------------------------------------------
-
-// Pega o que o usuário digitou, mantém só os números (até 4 dígitos: MMAA)
-// e insere a barra "/" automaticamente depois dos 2 primeiros dígitos.
 fun formatarValidade(entrada: String): String {
     val apenasDigitos = entrada.filter { caractere -> caractere.isDigit() }.take(4)
 
@@ -424,15 +393,12 @@ fun formatarValidade(entrada: String): String {
 }
 
 fun isNumeroCartaoValido(numero: String): Boolean {
-    // Remove espaços (o usuário pode digitar "0000 0000 0000 0000") e verifica
-    // se sobraram exatamente 16 dígitos numéricos.
     val apenasNumeros = numero.replace(" ", "")
     if (apenasNumeros.length != 16) return false
     return apenasNumeros.all { caractere -> caractere.isDigit() }
 }
 
 fun isValidadeValida(validade: String): Boolean {
-    // Formato esperado: MM/AA
     val partes = validade.split("/")
     if (partes.size != 2) return false
 
@@ -467,7 +433,6 @@ fun isFormularioValido(
             isNomeTitularValido(nomeTitular)
 }
 
-// Pequena extensão só para deixar o Modifier.clickable mais legível nos Cards de pagamento
 private fun Modifier.clickableSemTiraEfeitoVisual(onClick: () -> Unit): Modifier =
     this.then(
         Modifier.clickable(onClick = onClick)
